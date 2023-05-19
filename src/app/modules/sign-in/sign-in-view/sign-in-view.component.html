@@ -1,0 +1,70 @@
+<div class="container" [ngClass]="containerClass" id="container">
+    <div class="form-container sign-up-container">
+
+        <form [formGroup]="signUpForm">
+            <h1>Create Account</h1>
+            <div class="social-container">
+                <a href="#" class="social"><mat-icon>facebook</mat-icon></a>
+            </div>
+            <span>or use your email for registration</span>
+
+            <input placeholder="Name" matInput type="text" [formControlName]="'name'">
+            <mat-error *ngFor="let validation of validation_messages.name">
+                <mat-error class="error-message"
+                    *ngIf="signUpForm.get('name')?.hasError(validation.type) && (signUpForm.get('name')?.dirty || signUpForm.get('name')?.touched)">
+                    {{validation.message}}
+                </mat-error>
+            </mat-error>
+            <input matInput type="email" placeholder="Email" [formControlName]="'email'" />
+            <mat-error *ngFor="let validation of validation_messages.email">
+                <mat-error class="error-message"
+                    *ngIf="signUpForm.get('email')?.hasError(validation.type) && (signUpForm.get('email')?.dirty || signUpForm.get('email')?.touched)">
+                    {{validation.message}}
+                </mat-error>
+            </mat-error>
+
+            <input matInput type="password" placeholder="Password" [formControlName]="'password'" />
+            <mat-error *ngFor="let validation of validation_messages.password">
+                <mat-error class="error-message"
+                    *ngIf="signUpForm.get('password')?.hasError(validation.type) && (signUpForm.get('password')?.dirty || signUpForm.get('password')?.touched)">
+                    {{validation.message}}
+                </mat-error>
+            </mat-error>
+
+            <button class="mt-10" mat-flat-button [color]="'warn'" (click)="addDetails()"
+                [disabled]="signUpForm.invalid">
+                <span class="ml-2 mr-1">Sign Up</span>
+            </button>
+        </form>
+    </div>
+    <div class="form-container sign-in-container">
+        <form [formGroup]="signInForm">
+            <h1>Sign in</h1>
+            <div class="social-container">
+                <a href="#" class="social"><mat-icon>facebook</mat-icon></a>
+            </div>
+            <span>or use your account</span>
+            <input matInput type="email" placeholder="Email" [formControlName]="'email'" />
+            <input matInput type="password" placeholder="Password" [formControlName]="'password'" />
+
+            <a href="#">Forgot your password?</a>
+            <button class="mt-10" mat-flat-button [color]="'warn'" (click)="signIn()" [disabled]="signInForm.invalid">
+                <span class="ml-2 mr-1">Sign In</span>
+            </button>
+        </form>
+    </div>
+    <div class="overlay-container">
+        <div class="overlay">
+            <div class="overlay-panel overlay-left">
+                <h1>Welcome Back!</h1>
+                <p>To keep connected with us please login with your personal info</p>
+                <button class="ghost" (click)="onSignIn()" id="signIn">Sign In</button>
+            </div>
+            <div class="overlay-panel overlay-right">
+                <h1>Hello, Friend!</h1>
+                <p>Enter your personal details and start journey with us</p>
+                <button class="ghost" (click)="onSignUp()" id="signUp">Sign Up</button>
+            </div>
+        </div>
+    </div>
+</div>

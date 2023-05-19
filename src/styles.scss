@@ -1,0 +1,26 @@
+/* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.success-snack div {
+    background: #6ecc6e !important;
+    color: white !important;
+  }
+
+.error-snack div {
+    background: #e64141 !important;
+    color: white !important;
+    white-space: pre-line !important;
+  }
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+

@@ -1,0 +1,45 @@
+<h1 mat-dialog-title>Add Member</h1>
+<div mat-dialog-content>
+    <form [formGroup]="memberForm">
+        <div class="sm:col-span-4">
+            <mat-form-field class="w-full">
+                <mat-label>Name</mat-label>
+                <input autocomplete="off" matInput [formControlName]="'member_name'">
+            </mat-form-field>
+            <div *ngFor="let validation of validation_messages.name">
+                <mat-error class="error-message"
+                    *ngIf="memberForm.get('member_name')?.hasError(validation.type) && (memberForm.get('member_name')?.dirty || memberForm.get('member_name')?.touched)">
+                    {{validation.message}}
+                </mat-error>
+            </div>
+        </div>
+        <div class="sm:col-span-4">
+            <mat-form-field class="w-full">
+                <mat-label>Contact No</mat-label>
+                <input autocomplete="off" matInput [formControlName]="'contact_no'">
+            </mat-form-field>
+            <div *ngFor="let validation of validation_messages.contact_no">
+                <mat-error class="error-message"
+                    *ngIf="memberForm.get('contact_no')?.hasError(validation.type) && (memberForm.get('contact_no')?.dirty || memberForm.get('contact_no')?.touched)">
+                    {{validation.message}}
+                </mat-error>
+            </div>
+        </div>
+        <div class="sm:col-span-4">
+            <mat-form-field class="w-full">
+                <mat-label>Address</mat-label>
+                <input autocomplete="off" matInput [formControlName]="'address'">
+            </mat-form-field>
+            <div *ngFor="let validation of validation_messages.address">
+                <mat-error class="error-message"
+                    *ngIf="memberForm.get('address')?.hasError(validation.type) && (memberForm.get('address')?.dirty || memberForm.get('address')?.touched)">
+                    {{validation.message}}
+                </mat-error>
+            </div>
+        </div>
+    </form>
+</div>
+<div mat-dialog-actions>
+    <button mat-raised-button color="warn" [disabled]="memberForm.invalid" (click)="addMemberDetails()">Save</button>
+    <button mat-raised-button [mat-dialog-close]="true">Cancel</button>
+</div>
