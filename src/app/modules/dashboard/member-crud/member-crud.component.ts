@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from 'src/app/shared/services/auth/auth.service';
 import { HelperService } from 'src/app/shared/services/helper/helper.service';
 import { MemberService } from 'src/app/shared/services/member/member.service';
+import { DashboardViewComponent } from '../dashboard-view/dashboard-view.component';
 
 @Component({
   selector: 'app-member-crud',
@@ -12,6 +14,7 @@ import { MemberService } from 'src/app/shared/services/member/member.service';
 })
 export class MemberCrudComponent implements OnInit {
   containerClass: string = '';
+  showSpinner: boolean = false;
   memberForm!: FormGroup;
   validation_messages = {
     'name': [
@@ -29,15 +32,17 @@ export class MemberCrudComponent implements OnInit {
     ],
   };
 
-  member_name = new FormControl('');
+  name = new FormControl('');
   contact_no = new FormControl('');
   address = new FormControl('');
 
   constructor(
     private _formBuilder: FormBuilder,
     private _authService: AuthService,
+    private _dashboardViewComponent: DashboardViewComponent,
     private _memberService: MemberService,
     private _helperService: HelperService,
+    private _dialogRef: MatDialogRef<MemberCrudComponent>,
     private _activatedRoute: ActivatedRoute,
     private _router: Router
   ) {
@@ -45,7 +50,7 @@ export class MemberCrudComponent implements OnInit {
 
   ngOnInit(): void {
     this.memberForm = this._formBuilder.group({
-      member_name: new FormControl('', Validators.compose([
+      name: new FormControl('', Validators.compose([
         Validators.required,
         Validators.maxLength(25),
         Validators.pattern('^[a-zA-Z0-9\\s]*$')
@@ -61,11 +66,16 @@ export class MemberCrudComponent implements OnInit {
   }
 
   addMemberDetails() {
+    this.showSpinner = true;
     this._memberService
       .postMember(this.memberForm.value)
       .subscribe((resp) => {
+        this.showSpinner = false;
+        this._dialogRef.close();
+        this._memberService.reloadData$.next(resp);
         this._helperService.openMessageSnackBar(resp.message, '');
       }, (error) => {
+        this.showSpinner = false;
         this._helperService.openErrorSnackBar(error, '');
       });
   }

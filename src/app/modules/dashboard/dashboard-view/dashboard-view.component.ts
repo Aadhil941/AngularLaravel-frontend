@@ -4,26 +4,10 @@ import { Router } from '@angular/router';
 import { AuthService } from 'src/app/shared/services/auth/auth.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { MemberCrudComponent } from '../member-crud/member-crud.component';
-
-export interface PeriodicElement {
-  name: string;
-  position: number;
-  weight: number;
-  symbol: string;
-}
-
-const ELEMENT_DATA: PeriodicElement[] = [
-  {position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H'},
-  {position: 2, name: 'Helium', weight: 4.0026, symbol: 'He'},
-  {position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li'},
-  {position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be'},
-  {position: 5, name: 'Boron', weight: 10.811, symbol: 'B'},
-  {position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C'},
-  {position: 7, name: 'Nitrogen', weight: 14.0067, symbol: 'N'},
-  {position: 8, name: 'Oxygen', weight: 15.9994, symbol: 'O'},
-  {position: 9, name: 'Fluorine', weight: 18.9984, symbol: 'F'},
-  {position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne'},
-];
+import { MemberService, MemberSource } from 'src/app/shared/services/member/member.service';
+import { HelperService } from 'src/app/shared/services/helper/helper.service';
+import { fromEvent, merge, tap } from 'rxjs';
+import { MatSort } from '@angular/material/sort';
 
 @Component({
   selector: 'app-dashboard-view',
@@ -32,27 +16,81 @@ const ELEMENT_DATA: PeriodicElement[] = [
 })
 
 export class DashboardViewComponent implements OnInit {
-  displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
-  dataSource = ELEMENT_DATA;
-  @ViewChild(MatPaginator) paginator: MatPaginator | undefined;
+  displayedColumns: string[] = ['id', 'name', 'contact_no', 'address'];
+  dataSource!: MemberSource;
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort, { static: true })
+  sort!: MatSort;
+
+  showSpinner: boolean = false;
 
   constructor(
     private _authService: AuthService,
     private _router: Router,
+    private _memberService: MemberService,
+    private _helperService: HelperService,
     public _dialog: MatDialog
-    ) {
+  ) {
+    this._memberService.reloadData$.subscribe(
+      response => {
+        if (response) {
+          this.getDetails();
+        }
+      }
+    )
   }
 
   ngOnInit() {
-    // this.dataSource.paginator = this.paginator;
+    // this.initialLoad();
+    this.dataSource = new MemberSource(this._memberService);
+    this.dataSource.getAllData(1, 'id', 'desc', 0, 10);
   }
 
-  signOut(){
+  ngAfterViewInit() {
+    this.dataSource.counter$
+      .pipe(
+        tap((count: any) => {
+          if (this.paginator) {
+            this.paginator.length = count;
+          }
+        })
+      ).subscribe();
+
+    // reset the paginator after sorting
+    this.sort?.sortChange.subscribe(() => {
+      if (this.paginator) {
+        this.paginator.pageIndex = 0
+      }
+    });
+
+    // on sort or paginate events, load a new page
+    if (this.sort && this.paginator) {
+      merge(this.sort.sortChange, this.paginator.page)
+        .pipe(
+          tap(() => this.getDetails())
+        )
+        .subscribe();
+    }
+
+  }
+
+  getDetails() {
+    this.dataSource?.getAllData(
+      1,
+      this.sort.active ?? 'id',
+      this.sort.direction ?? 'desc',
+      this.paginator.pageIndex ?? '1',
+      this.paginator.pageSize ?? '10',
+    );
+  }
+
+  signOut() {
     this._router.navigate(['/sign-in']);
     this._authService.signOut();
   }
 
-  addMember(){
+  addMember() {
     const dialogRef = this._dialog.open(MemberCrudComponent, {
       width: '750px',
     });
@@ -61,4 +99,20 @@ export class DashboardViewComponent implements OnInit {
       console.log('The dialog was closed');
     });
   }
+
+  initialLoad() {
+    this.showSpinner = true;
+
+    this._memberService
+      .getMembers()
+      .subscribe((resp) => {
+        this.dataSource = resp.data;
+        this.showSpinner = false;
+        this._helperService.openMessageSnackBar(resp.message, '');
+      }, (error) => {
+        this.showSpinner = false;
+        this._helperService.openErrorSnackBar(error, '');
+      });
+  }
+
 }

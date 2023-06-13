@@ -4,11 +4,11 @@
         <div class="sm:col-span-4">
             <mat-form-field class="w-full">
                 <mat-label>Name</mat-label>
-                <input autocomplete="off" matInput [formControlName]="'member_name'">
+                <input autocomplete="off" matInput [formControlName]="'name'">
             </mat-form-field>
             <div *ngFor="let validation of validation_messages.name">
                 <mat-error class="error-message"
-                    *ngIf="memberForm.get('member_name')?.hasError(validation.type) && (memberForm.get('member_name')?.dirty || memberForm.get('member_name')?.touched)">
+                    *ngIf="memberForm.get('name')?.hasError(validation.type) && (memberForm.get('name')?.dirty || memberForm.get('name')?.touched)">
                     {{validation.message}}
                 </mat-error>
             </div>
@@ -38,6 +38,8 @@
             </div>
         </div>
     </form>
+    <mat-progress-bar *ngIf="showSpinner" class="example-margin" color="primary" mode="indeterminate" diameter="40" [bufferValue]="75">
+    </mat-progress-bar>
 </div>
 <div mat-dialog-actions>
     <button mat-raised-button color="warn" [disabled]="memberForm.invalid" (click)="addMemberDetails()">Save</button>
